@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
+#include <unistd.h>
+#include <signal.h>
+
+
+int main(int char, argc *argv[])
+{
+    int fd[2];
+    if (pipe(fd) == -1) {
+        printf("Error occured at Pipe.\n");
+        return 1;
+    }
+    
+    int id = fork();
+    if (id == -1) {
+        printf("Error occurred at Fork.\n");
+        return 4;
+    }
+    
+    if (id == 0) {
+        close(fd[0]);
+        int a;
+        printf("parent in process, enter a digit: ");
+        scanf("%d", &a);
+        if (write(fd[1], &a, sizeof(int)) == -1) {
+            printf("Error occured at Pipe, nothing can be written in Pipe.\n");
+            return 2;
+        }
+        close(fd[1]);
+    }
+    
+    else {
+        close(fd[1]);
+        int b;
+        if (read(fd[0], &b, sizeof(int)) == -1) {
+            printf("Error occured at Pipe, nothing can be read in Pipe. \n");
+            return 3;
+        }
+    close(fd[0]);
+    printf("This is a child process.\n");
+    }
+    return 0;
+}
